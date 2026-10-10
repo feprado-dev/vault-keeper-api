@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: vault-keeper-api
+  # Perfil padrão: H2 em memória, sem instalar nada.
+  datasource:
+    url: jdbc:h2:mem:vault;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;NON_KEYWORDS=YEAR,MONTH
+  jpa:
+    hibernate:
+      ddl-auto: create-drop   # só para desenvolvimento: recria as tabelas
+    open-in-view: false
+  test:
+    database:
+      replace: none         # os testes usam a MESMA configuração do H2 acima
