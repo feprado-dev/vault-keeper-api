@@ -1,0 +1,10 @@
+# Valores FALSOS, só para os testes automatizados.
+app:
+  auth:
+    username: dono
+    password-hash: "$2y$10$k.UqA0xej9lCSzIZ2v6IOuQgNCNUQwUv2ABy/wbG2LnehV4RlNuy2"   # BCrypt de "senha-de-teste-123"
+  jwt:
+    secret: segredo-somente-para-testes-1234567890
+    expiration-hours: 1
+  cors:
+    allowed-origins: http://localhost:5173

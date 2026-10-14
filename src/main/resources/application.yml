@@ -11,3 +11,15 @@ spring:
   test:
     database:
       replace: none         # os testes usam a MESMA configuração do H2 acima
+
+# Segredos vêm de VARIÁVEIS DE AMBIENTE (nunca escritos no código).
+# Sem elas a API nem sobe: é de propósito.
+app:
+  auth:
+    username: ${APP_ADMIN_USER}
+    password-hash: ${APP_ADMIN_PASSWORD_HASH}
+  jwt:
+    secret: ${APP_JWT_SECRET}
+    expiration-hours: 12
+  cors:
+    allowed-origins: ${APP_CORS_ORIGINS:http://localhost:5173}
