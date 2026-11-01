@@ -2,8 +2,7 @@ package br.com.vaultkeeper.magazine;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.Convert;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -19,6 +18,10 @@ public class Magazine {
     @GeneratedValue
     private UUID id;
 
+    // Dono da revista (auth.users.id no Supabase). A coluna é NOT NULL no banco.
+    @Column(name = "user_id", nullable = false)
+    private UUID userId;
+
     @Column(nullable = false)
     private String title;
 
@@ -29,7 +32,7 @@ public class Magazine {
     @Column(name = "cover_model")
     private String coverModel;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = ConditionConverter.class)
     private Condition condition;
 
     private boolean acquired;
@@ -49,6 +52,8 @@ public class Magazine {
     }
 
     public UUID getId() { return id; }
+    public UUID getUserId() { return userId; }
+    public void setUserId(UUID userId) { this.userId = userId; }
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
     public String getIssue() { return issue; }

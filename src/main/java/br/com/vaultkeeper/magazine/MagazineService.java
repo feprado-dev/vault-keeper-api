@@ -2,6 +2,7 @@ package br.com.vaultkeeper.magazine;
 
 import java.util.List;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,13 +14,17 @@ public class MagazineService {
 
     private final MagazineRepository repository;
 
-    public MagazineService(MagazineRepository repository) {
+    // A API tem um único dono (o administrador); o id dele vem de APP_OWNER_ID.
+    private final UUID ownerId;
+
+    public MagazineService(MagazineRepository repository, @Value("${app.owner-id}") UUID ownerId) {
         this.repository = repository;
+        this.ownerId = ownerId;
     }
 
     @Transactional(readOnly = true)
     public List<Magazine> listAll() {
-        return repository.findAll();
+        return repository.findByUserId(ownerId);
     }
 
     @Transactional(readOnly = true)
@@ -29,6 +34,7 @@ public class MagazineService {
 
     public Magazine create(MagazineRequest request) {
         var magazine = new Magazine(request.title());
+        magazine.setUserId(ownerId);
         apply(magazine, request);
         return repository.save(magazine);
     }
@@ -50,7 +56,7 @@ public class MagazineService {
     }
 
     private Magazine find(UUID id) {
-        return repository.findById(id).orElseThrow(() -> new MagazineNotFoundException(id));
+        return repository.findByIdAndUserId(id, ownerId).orElseThrow(() -> new MagazineNotFoundException(id));
     }
 
     private void apply(Magazine m, MagazineRequest r) {

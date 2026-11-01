@@ -1,0 +1,22 @@
+# Perfil "supabase": liga a API ao Postgres do Supabase.
+# Uso:  SPRING_PROFILES_ACTIVE=supabase  (e as variáveis abaixo, TODAS obrigatórias)
+#   SUPABASE_DB_URL       jdbc:postgresql://<host>:5432/postgres?sslmode=require
+#   SUPABASE_DB_USER      postgres.<ref-do-projeto>  (ou o usuário do pooler)
+#   SUPABASE_DB_PASSWORD  senha do banco (painel do Supabase > Database). NUNCA no código.
+#   APP_OWNER_ID          uuid do seu usuário (auth.users.id)
+# Atenção: a API conecta como DONO do banco e por isso ignora a RLS. Quem protege os dados
+# aqui é o filtro por user_id do código (MagazineRepository.findByUserId).
+spring:
+  datasource:
+    url: ${SUPABASE_DB_URL}
+    username: ${SUPABASE_DB_USER}
+    password: ${SUPABASE_DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5
+  jpa:
+    hibernate:
+      ddl-auto: validate   # NUNCA create/update no banco real: só confere se as colunas existem
+
+app:
+  owner-id: ${APP_OWNER_ID}

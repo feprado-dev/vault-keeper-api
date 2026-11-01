@@ -23,3 +23,6 @@ app:
     expiration-hours: 12
   cors:
     allowed-origins: ${APP_CORS_ORIGINS:http://localhost:5173}
+  # Id do usuário dono das revistas (auth.users.id). O padrão só serve para o H2 local;
+  # com o perfil "supabase" a variável APP_OWNER_ID é obrigatória.
+  owner-id: ${APP_OWNER_ID:00000000-0000-0000-0000-000000000001}

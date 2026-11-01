@@ -6,5 +6,6 @@ app:
   jwt:
     secret: segredo-somente-para-testes-1234567890
     expiration-hours: 1
+  owner-id: 11111111-1111-1111-1111-111111111111
   cors:
     allowed-origins: http://localhost:5173

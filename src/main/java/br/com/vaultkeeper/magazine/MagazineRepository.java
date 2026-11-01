@@ -9,4 +9,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface MagazineRepository extends JpaRepository<Magazine, UUID> {
 
     List<Magazine> findByIsPublicTrueOrderByYearDescMonthDesc();
+
+    // As consultas do dono sempre filtram por user_id: a API conecta como dono do banco,
+    // então a RLS do Supabase NÃO protege aqui. Esta é a proteção.
+    List<Magazine> findByUserId(UUID userId);
+
+    java.util.Optional<Magazine> findByIdAndUserId(UUID id, UUID userId);
 }

@@ -3,7 +3,7 @@ package br.com.vaultkeeper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-// Ponto de partida: o Spring procura classes anotadas a partir deste pacote.
+// Ponto de partida: o Spring proc`ura classes anotadas a partir deste pacote.
 @SpringBootApplication
 public class VaultKeeperApplication {
 

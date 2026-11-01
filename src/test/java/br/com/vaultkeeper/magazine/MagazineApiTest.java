@@ -92,6 +92,22 @@ class MagazineApiTest {
                 .andExpect(jsonPath("$[?(@.title=='Secreta Zeta')]").isNotEmpty());
     }
 
+    @Autowired MagazineRepository repositorio;
+
+    @Test
+    void naoEnxergaNemMexeEmRevistaDeOutroUsuario() throws Exception {
+        var deOutro = new Magazine("Revista alheia");
+        deOutro.setUserId(UUID.fromString("22222222-2222-2222-2222-222222222222"));
+        var id = repositorio.save(deOutro).getId();
+
+        mvc.perform(get("/api/magazines"))
+                .andExpect(jsonPath("$[?(@.title=='Revista alheia')]").isEmpty());
+        mvc.perform(delete("/api/magazines/" + id)).andExpect(status().isNotFound());
+        mvc.perform(put("/api/magazines/" + id)
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"title\":\"invadida\"}"))
+                .andExpect(status().isNotFound());
+    }
+
     @Test
     void apagaEDepoisDa404() throws Exception {
         var id = criar("{\"title\":\"Descartável\"}");

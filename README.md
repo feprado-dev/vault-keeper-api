@@ -39,3 +39,21 @@ mvn test
 | GET/POST | `/api/magazines` | token |
 | PUT/DELETE | `/api/magazines/{id}` | token |
 | PATCH | `/api/magazines/{id}/public` | token |
+
+## Ligando ao Postgres do Supabase
+
+O perfil `supabase` (arquivo `application-supabase.yml`) troca o H2 pelo banco real:
+
+```bash
+export SPRING_PROFILES_ACTIVE=supabase
+export SUPABASE_DB_URL='jdbc:postgresql://<host>:5432/postgres?sslmode=require'
+export SUPABASE_DB_USER='postgres.<ref-do-projeto>'
+export SUPABASE_DB_PASSWORD='...'   # painel do Supabase > Database. Nunca no código nem no chat.
+export APP_OWNER_ID='<uuid do seu usuário em auth.users>'
+```
+
+- `ddl-auto: validate`: a API só **confere** se as colunas existem; nunca altera o banco.
+- A coluna `condition` é texto (`'Excelente'`, `'Bom'`...): o `ConditionConverter` traduz para o enum.
+- `user_id` é obrigatório no banco: a API grava `APP_OWNER_ID` nas revistas novas.
+- **Atenção:** a API conecta como dono do banco e **ignora a RLS**. A proteção é o filtro por
+  `user_id` em `MagazineRepository` (há testes garantindo que revista de outro usuário não aparece nem é alterada).
