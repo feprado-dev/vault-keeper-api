@@ -1,0 +1,10 @@
+# Perfil "dev": tudo FALSO e local, para rodar sem configurar nada.
+#   SPRING_PROFILES_ACTIVE=dev mvn spring-boot:run   ->   http://localhost:8080
+# Login do painel:  usuário  dono   |   senha  senha-de-teste-123
+# NUNCA use estes valores fora do seu computador.
+app:
+  auth:
+    username: dono
+    password-hash: "$2y$10$k.UqA0xej9lCSzIZ2v6IOuQgNCNUQwUv2ABy/wbG2LnehV4RlNuy2"
+  jwt:
+    secret: segredo-somente-para-desenvolvimento-local-1234567890

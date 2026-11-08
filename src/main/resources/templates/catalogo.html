@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Catálogo público · Vault Keeper</title>
+  <meta name="description" content="Catálogo pessoal para organizar e preservar uma coleção de revistas, edição por edição.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+  <link rel="stylesheet" th:href="@{/css/site.css}">
+</head>
+<body>
+  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+  <header class="site-header">
+    <a class="brand" th:href="@{/catalogo}">Vault Keeper</a>
+    <nav aria-label="Principal">
+      <a th:href="@{/catalogo}" aria-current="page">Catálogo público</a>
+      <a th:href="@{/painel/}">Painel</a>
+    </nav>
+  </header>
+
+  <main id="conteudo" tabindex="-1">
+    <h1 class="sr-only">Catálogo público</h1>
+
+    <form class="filters" method="get" th:action="@{/catalogo}" role="search">
+      <label>Buscar
+        <input type="search" name="q" th:value="${q}" placeholder="título, edição ou capa">
+      </label>
+      <label>Ano
+        <select name="ano">
+          <option value="">Todos</option>
+          <option th:each="a : ${anos}" th:value="${a}" th:text="${a}" th:selected="${a == ano}"></option>
+        </select>
+      </label>
+      <button type="submit">Filtrar</button>
+      <a class="btn" th:href="@{/catalogo}" th:if="${!q.isEmpty() or ano != null}">Limpar</a>
+    </form>
+
+    <p class="count" th:text="${encontradas} + ' de ' + ${total} + ' revistas públicas'">0 de 0 revistas públicas</p>
+    <p class="count" th:if="${total == 0}">Nenhuma revista pública ainda.</p>
+    <p class="count" th:if="${total > 0 and encontradas == 0}">Nenhuma revista encontrada com estes filtros.</p>
+
+    <ul class="grid">
+      <li th:each="c : ${cards}">
+        <article th:class="${c.acquired} ? 'card' : 'card card--missing'">
+          <div class="card__media">
+            <img th:if="${c.coverUrl != null}" th:src="${c.coverUrl}" th:alt="'Capa de ' + ${c.title}"
+                 width="300" height="400" loading="lazy" decoding="async">
+            <div class="card__placeholder" th:if="${c.coverUrl == null}">Sem capa</div>
+          </div>
+          <h2 class="card__title" th:text="${c.title}">Título</h2>
+          <p class="card__meta" th:if="${!c.meta.isEmpty()}" th:text="${c.meta}">Nº 1 · 01/1990</p>
+          <p class="card__meta" th:if="${!c.acquired}"><span class="tag">Procurando</span></p>
+        </article>
+      </li>
+    </ul>
+
+    <p class="more" th:if="${restantes > 0}">
+      <a class="btn" th:href="@{/catalogo(q=${q}, ano=${ano}, limite=${proximoLimite})}"
+         th:text="'Mostrar mais (' + ${restantes} + ' restantes)'">Mostrar mais</a>
+    </p>
+  </main>
+
+  <footer class="site-footer">
+    <p>Projeto pessoal e sem fins lucrativos. Os direitos das capas pertencem aos seus titulares,
+       sem vínculo com eles.</p>
+  </footer>
+
+  <!-- Aviso 18+: declaratório, como no React. Sem JavaScript o aviso não aparece, e o catálogo continua legível. -->
+  <dialog id="idade" aria-labelledby="idade-titulo">
+    <p class="eyebrow">Conteúdo adulto</p>
+    <h2 id="idade-titulo">Você tem 18 anos ou mais?</h2>
+    <p>Este site exibe capas de revistas com nudez artística. O acesso é destinado a maiores de 18 anos.</p>
+    <div class="actions">
+      <button type="button" id="idade-sim">Tenho 18 anos ou mais</button>
+      <a class="btn" href="https://www.google.com">Sair</a>
+    </div>
+  </dialog>
+  <script th:src="@{/js/idade.js}" defer></script>
+</body>
+</html>

@@ -16,5 +16,6 @@ public record MagazineRequest(
         String coverModel,
         Condition condition,
         boolean acquired,
-        boolean isPublic) {
+        boolean isPublic,
+        String coverImageUrl) {
 }

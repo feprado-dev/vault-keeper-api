@@ -4,3 +4,8 @@ target/
 .env
 application-local.yml
 data/
+
+# Painel React compilado (gerado por: npm --prefix painel run build)
+src/main/resources/static/painel/
+painel/node_modules/
+painel/dist/

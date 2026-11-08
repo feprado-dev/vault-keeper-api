@@ -68,5 +68,6 @@ public class MagazineService {
         m.setCondition(r.condition()); // null continua null (corrige o bug do 'Bom')
         m.setAcquired(r.acquired());
         m.setPublic(r.isPublic());
+        m.setCoverImageUrl(r.coverImageUrl());
     }
 }
