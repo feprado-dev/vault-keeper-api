@@ -200,3 +200,16 @@ select {
   border-color: var(--accent);
   color: var(--accent);
 }
+.thumb {
+  width: 60px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 4px;
+  background: var(--border);
+}
+.grow {
+  flex: 1 1 12rem;
+}
+.row-item {
+  align-items: flex-start;
+}

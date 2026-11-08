@@ -87,10 +87,15 @@ Para mexer no painel com recarga automática: `npm --prefix painel run dev` (por
 ### Com o Postgres do Supabase
 Use o perfil `supabase` (veja a seção acima) e as variáveis `APP_ADMIN_USER`, `APP_ADMIN_PASSWORD_HASH` e `APP_JWT_SECRET`.
 
+### Capas
+No painel, o formulário aceita **JPEG, PNG, WebP ou AVIF de até 5 MB** (ou, como alternativa, o endereço https de uma imagem).
+A API confere o **conteúdo** do arquivo (os primeiros bytes), e não o nome nem o tipo declarado, grava com nome UUID e serve em `/capas/<arquivo>`.
+Trocar a capa ou apagar a revista remove o arquivo antigo. No perfil `dev`, as revistas de exemplo ganham capas SVG geradas pelo código.
+
 ### Testes
-`mvn test` (Java: API, filtro, páginas HTML, segurança) e `npm --prefix painel test` (React: API, login, CRUD).
+`mvn test` (41 testes Java: API, filtro, páginas HTML, segurança, envio de capas) e `npm --prefix painel test` (14 testes React: API, login, CRUD, envio de capa).
 
 ### Limitações conhecidas
-- **Upload de capas ainda não existe** nesta versão: o painel recebe o endereço (https) da imagem. Enviar o arquivo para o Supabase Storage exige a chave de serviço no servidor.
+- **As capas ficam no disco do servidor** (`APP_STORAGE_DIR`, padrão `./data/capas`). Em hospedagens com disco efêmero (Render gratuito, por exemplo) elas somem a cada deploy: para produção, use um volume persistente ou o Supabase Storage (que exige a chave de serviço no servidor).
 - O painel precisa ser compilado antes de rodar (`npm --prefix painel run build`); a pasta compilada não vai para o Git.
 - Não foi publicada nem testada contra o banco real do Supabase (falta a senha do banco, que fica só em variável de ambiente).

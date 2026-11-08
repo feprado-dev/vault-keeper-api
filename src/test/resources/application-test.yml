@@ -6,6 +6,8 @@ app:
   jwt:
     secret: segredo-somente-para-testes-1234567890
     expiration-hours: 1
+  storage:
+    dir: ${java.io.tmpdir}/vault-keeper-test-capas
   owner-id: 11111111-1111-1111-1111-111111111111
   cors:
     allowed-origins: http://localhost:5173

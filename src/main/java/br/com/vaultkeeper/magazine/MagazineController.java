@@ -4,6 +4,9 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -46,6 +49,12 @@ public class MagazineController {
     @PatchMapping("/{id}/public")
     public MagazineResponse setPublic(@PathVariable UUID id, @RequestBody VisibilityRequest request) {
         return MagazineResponse.from(service.setPublic(id, request.isPublic()));
+    }
+
+    // Envio da imagem da capa (multipart/form-data, campo "file").
+    @PostMapping(path = "/{id}/cover", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public MagazineResponse uploadCover(@PathVariable UUID id, @RequestParam("file") MultipartFile file) {
+        return MagazineResponse.from(service.replaceCover(id, file));
     }
 
     @DeleteMapping("/{id}")

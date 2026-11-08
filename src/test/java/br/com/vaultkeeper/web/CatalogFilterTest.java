@@ -55,5 +55,9 @@ class CatalogFilterTest {
         assertThat(CatalogFilter.safeImageUrl("javascript:alert(1)")).isNull();
         assertThat(CatalogFilter.safeImageUrl("data:text/html;base64,AAAA")).isNull();
         assertThat(CatalogFilter.safeImageUrl(null)).isNull();
+        assertThat(CatalogFilter.safeImageUrl("/capas/abc.png")).isEqualTo("/capas/abc.png");
+        assertThat(CatalogFilter.safeImageUrl("/capas/../segredo.png")).isNull();
+        assertThat(CatalogFilter.safeImageUrl("/capas/sub/abc.png")).isNull();
+        assertThat(CatalogFilter.safeImageUrl("/outra/abc.png")).isNull();
     }
 }

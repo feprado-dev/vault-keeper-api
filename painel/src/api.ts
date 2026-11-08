@@ -42,7 +42,8 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const res = await fetch(path, {
     ...init,
     headers: {
-      ...(init.body ? { 'Content-Type': 'application/json' } : {}),
+      // FormData (upload) define sozinho o Content-Type, com o "boundary": não pode ser sobrescrito.
+      ...(init.body && !(init.body instanceof FormData) ? { 'Content-Type': 'application/json' } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
   })
@@ -74,5 +75,11 @@ export const updateMagazine = (id: string, input: MagazineInput) =>
 
 export const setPublic = (id: string, isPublic: boolean) =>
   request<Magazine>(`/api/magazines/${id}/public`, { method: 'PATCH', body: JSON.stringify({ isPublic }) })
+
+export function uploadCover(id: string, file: File) {
+  const form = new FormData()
+  form.append('file', file)
+  return request<Magazine>(`/api/magazines/${id}/cover`, { method: 'POST', body: form })
+}
 
 export const deleteMagazine = (id: string) => request<void>(`/api/magazines/${id}`, { method: 'DELETE' })

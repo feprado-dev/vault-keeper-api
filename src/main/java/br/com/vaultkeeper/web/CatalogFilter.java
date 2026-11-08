@@ -34,12 +34,15 @@ public final class CatalogFilter {
                 .toList();
     }
 
-    // Só aceita endereços http(s) como imagem: nada de "javascript:" ou "data:" vindos do banco.
+    // Só aceita http(s) e as capas locais (/capas/...) como imagem: nada de "javascript:" ou "data:" vindos do banco.
     public static String safeImageUrl(String url) {
         if (url == null) {
             return null;
         }
         var u = url.trim().toLowerCase(Locale.ROOT);
-        return (u.startsWith("https://") || u.startsWith("http://")) ? url.trim() : null;
+        boolean externa = u.startsWith("https://") || u.startsWith("http://");
+        // Capa enviada pelo painel: /capas/<arquivo>, sem subpastas e sem "..".
+        boolean local = u.startsWith("/capas/") && u.indexOf('/', "/capas/".length()) == -1 && !u.contains("..");
+        return (externa || local) ? url.trim() : null;
     }
 }

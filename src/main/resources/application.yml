@@ -1,6 +1,10 @@
 spring:
   application:
     name: vault-keeper-api
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
   # Perfil padrão: H2 em memória, sem instalar nada.
   datasource:
     url: jdbc:h2:mem:vault;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;NON_KEYWORDS=YEAR,MONTH
@@ -25,4 +29,7 @@ app:
     allowed-origins: ${APP_CORS_ORIGINS:http://localhost:5173}
   # Id do usuário dono das revistas (auth.users.id). O padrão só serve para o H2 local;
   # com o perfil "supabase" a variável APP_OWNER_ID é obrigatória.
+  # Pasta onde ficam as capas enviadas pelo painel (servidas em /capas/...).
+  storage:
+    dir: ${APP_STORAGE_DIR:./data/capas}
   owner-id: ${APP_OWNER_ID:00000000-0000-0000-0000-000000000001}

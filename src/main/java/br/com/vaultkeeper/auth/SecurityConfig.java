@@ -39,7 +39,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/public/**").permitAll()
                         // Páginas HTML do catálogo (Thymeleaf) e arquivos estáticos (CSS, JS e o painel React)
-                        .requestMatchers(HttpMethod.GET, "/", "/catalogo", "/painel", "/painel/**", "/css/**", "/js/**", "/favicon.svg", "/favicon.ico", "/error").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/", "/catalogo", "/painel", "/painel/**", "/css/**", "/js/**", "/favicon.svg", "/favicon.ico", "/capas/**", "/error").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated()) // todo o resto exige token
                 .oauth2ResourceServer(o -> o.jwt(Customizer.withDefaults()));

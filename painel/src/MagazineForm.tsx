@@ -1,9 +1,12 @@
 import { useState } from 'react'
+
+const MAX_COVER_MB = 5
+const COVER_TYPES = 'image/png,image/jpeg,image/webp,image/avif'
 import { CONDITION_LABELS, type Condition, type Magazine, type MagazineInput } from './types'
 
 interface Props {
   initial?: Magazine
-  onSubmit: (input: MagazineInput) => Promise<void>
+  onSubmit: (input: MagazineInput, cover: File | null) => Promise<void>
   onCancel?: () => void
 }
 
@@ -20,24 +23,44 @@ export function MagazineForm({ initial, onSubmit, onCancel }: Props) {
   const [condition, setCondition] = useState<Condition | ''>(initial?.condition ?? '')
   const [acquired, setAcquired] = useState(initial?.acquired ?? true)
   const [isPublic, setIsPublic] = useState(initial?.isPublic ?? false)
+  const [cover, setCover] = useState<File | null>(null)
+  const [coverError, setCoverError] = useState<string | null>(null)
+  const [fileKey, setFileKey] = useState(0) // trocar a key limpa o campo de arquivo
   const [busy, setBusy] = useState(false)
+
+  // Validação rápida no navegador (a de verdade é feita pela API, que olha o conteúdo do arquivo).
+  function handleCover(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0] ?? null
+    setCoverError(null)
+    if (file && file.size > MAX_COVER_MB * 1024 * 1024) {
+      setCoverError(`A imagem passa de ${MAX_COVER_MB} MB.`)
+      setCover(null)
+      return
+    }
+    setCover(file)
+  }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
     if (title.trim() === '') return
     setBusy(true)
     try {
-      await onSubmit({
-        title: title.trim(),
-        issue: issue.trim() || null,
-        year: year === '' ? null : Number(year),
-        month: month === '' ? null : Number(month),
-        coverModel: coverModel.trim() || null,
-        coverImageUrl: coverImageUrl.trim() || null,
-        condition: condition || null,
-        acquired,
-        isPublic,
-      })
+      await onSubmit(
+        {
+          title: title.trim(),
+          issue: issue.trim() || null,
+          year: year === '' ? null : Number(year),
+          month: month === '' ? null : Number(month),
+          coverModel: coverModel.trim() || null,
+          coverImageUrl: coverImageUrl.trim() || null,
+          condition: condition || null,
+          acquired,
+          isPublic,
+        },
+        cover,
+      )
+      setCover(null)
+      setFileKey((k) => k + 1)
       if (!initial) {
         setTitle('')
         setIssue('')
@@ -75,7 +98,16 @@ export function MagazineForm({ initial, onSubmit, onCancel }: Props) {
         <input value={coverModel} onChange={(e) => setCoverModel(e.target.value)} />
       </label>
       <label>
-        Endereço da imagem da capa (https://...)
+        Capa (imagem JPEG, PNG, WebP ou AVIF, até {MAX_COVER_MB} MB)
+        <input key={fileKey} type="file" accept={COVER_TYPES} onChange={handleCover} />
+      </label>
+      {coverError && (
+        <p role="alert" className="error">
+          {coverError}
+        </p>
+      )}
+      <label>
+        ...ou endereço da imagem (https://...)
         <input type="url" value={coverImageUrl} onChange={(e) => setCoverImageUrl(e.target.value)} />
       </label>
       <label>

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { ApiError, createMagazine, deleteMagazine, listMagazines, login, session } from './api'
+import { ApiError, createMagazine, deleteMagazine, listMagazines, login, session, uploadCover } from './api'
 
 function respostaJson(corpo: unknown, status = 200) {
   return Promise.resolve(new Response(JSON.stringify(corpo), { status }))
@@ -58,5 +58,24 @@ describe('api', () => {
   it('204 (apagar) não tenta ler JSON', async () => {
     vi.stubGlobal('fetch', vi.fn().mockReturnValue(Promise.resolve(new Response(null, { status: 204 }))))
     await expect(deleteMagazine('1')).resolves.toBeUndefined()
+  })
+})
+
+describe('uploadCover', () => {
+  it('envia o arquivo como FormData, sem forçar Content-Type JSON', async () => {
+    session.set('t')
+    const fetchMock = vi.fn().mockReturnValue(respostaJson({ id: '1', coverImageUrl: '/capas/x.png' }))
+    vi.stubGlobal('fetch', fetchMock)
+    const arquivo = new File(['x'], 'capa.png', { type: 'image/png' })
+
+    await uploadCover('1', arquivo)
+
+    const [url, init] = fetchMock.mock.calls[0]
+    expect(url).toBe('/api/magazines/1/cover')
+    expect(init.method).toBe('POST')
+    expect(init.body).toBeInstanceOf(FormData)
+    expect((init.body as FormData).get('file')).toBeInstanceOf(File)
+    expect(init.headers['Content-Type']).toBeUndefined()
+    expect(init.headers.Authorization).toBe('Bearer t')
   })
 })

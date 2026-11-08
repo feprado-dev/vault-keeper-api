@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 // Aqui moram as REGRAS. O controller só traduz HTTP; o repositório só fala
 // com o banco. É o mesmo papel do magazineService.ts no React.
@@ -16,9 +17,12 @@ public class MagazineService {
 
     // A API tem um único dono (o administrador); o id dele vem de APP_OWNER_ID.
     private final UUID ownerId;
+    private final CoverStorage covers;
 
-    public MagazineService(MagazineRepository repository, @Value("${app.owner-id}") UUID ownerId) {
+    public MagazineService(MagazineRepository repository, CoverStorage covers,
+            @Value("${app.owner-id}") UUID ownerId) {
         this.repository = repository;
+        this.covers = covers;
         this.ownerId = ownerId;
     }
 
@@ -52,7 +56,18 @@ public class MagazineService {
     }
 
     public void delete(UUID id) {
-        repository.delete(find(id));
+        var magazine = find(id);
+        repository.delete(magazine);
+        covers.deleteIfLocal(magazine.getCoverImageUrl()); // não deixa a imagem órfã no disco
+    }
+
+    // Troca a capa: valida e grava a nova primeiro; só então apaga a antiga.
+    public Magazine replaceCover(UUID id, MultipartFile file) {
+        var magazine = find(id); // 404 se a revista não for do dono
+        var old = magazine.getCoverImageUrl();
+        magazine.setCoverImageUrl(covers.store(file));
+        covers.deleteIfLocal(old);
+        return magazine;
     }
 
     private Magazine find(UUID id) {

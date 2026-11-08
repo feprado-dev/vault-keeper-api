@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ApiError, createMagazine, deleteMagazine, listMagazines, setPublic, updateMagazine } from './api'
+import { ApiError, createMagazine, deleteMagazine, listMagazines, setPublic, updateMagazine, uploadCover } from './api'
 import { MagazineForm } from './MagazineForm'
 import { CONDITION_LABELS, type Magazine, type MagazineInput } from './types'
 
@@ -28,20 +28,26 @@ export function Panel({ onLogout }: { onLogout: () => void }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  async function handleAdd(input: MagazineInput) {
+  async function handleAdd(input: MagazineInput, cover: File | null) {
     try {
       setError(null)
-      const created = await createMagazine(input)
+      let created = await createMagazine(input)
       setMagazines((current) => [created, ...current])
+      // A revista já existe; se o envio da capa falhar, ela fica sem capa e o erro aparece (dá para tentar de novo pelo Editar).
+      if (cover) {
+        created = await uploadCover(created.id, cover)
+        setMagazines((current) => current.map((m) => (m.id === created.id ? created : m)))
+      }
     } catch (e) {
       fail(e)
     }
   }
 
-  async function handleUpdate(id: string, input: MagazineInput) {
+  async function handleUpdate(id: string, input: MagazineInput, cover: File | null) {
     try {
       setError(null)
-      const updated = await updateMagazine(id, input)
+      let updated = await updateMagazine(id, input)
+      if (cover) updated = await uploadCover(id, cover)
       setMagazines((current) => current.map((m) => (m.id === id ? updated : m)))
       setEditingId(null)
     } catch (e) {
@@ -108,12 +114,22 @@ export function Panel({ onLogout }: { onLogout: () => void }) {
               {editingId === m.id ? (
                 <MagazineForm
                   initial={m}
-                  onSubmit={(input) => handleUpdate(m.id, input)}
+                  onSubmit={(input, cover) => handleUpdate(m.id, input, cover)}
                   onCancel={() => setEditingId(null)}
                 />
               ) : (
                 <article className="row-item">
-                  <div>
+                  {m.coverImageUrl && (
+                    <img
+                      className="thumb"
+                      src={m.coverImageUrl}
+                      alt={`Capa de ${m.title}`}
+                      width={60}
+                      height={80}
+                      loading="lazy"
+                    />
+                  )}
+                  <div className="grow">
                     <h3>{m.title}</h3>
                     <p className="muted">
                       {[

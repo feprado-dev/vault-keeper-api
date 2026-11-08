@@ -104,4 +104,38 @@ describe('App (painel)', () => {
     const form = await screen.findByRole('button', { name: 'Entrar' })
     expect(within(form.closest('form')!).getByLabelText('Usuário')).toBeInTheDocument()
   })
+
+  it('cria a revista e depois envia a capa escolhida', async () => {
+    session.set('t')
+    const fetchMock = vi
+      .fn()
+      .mockReturnValueOnce(json([]))
+      .mockReturnValueOnce(json(revista({ id: '9', title: 'Nova' }), 201))
+      .mockReturnValueOnce(json(revista({ id: '9', title: 'Nova', coverImageUrl: '/capas/x.png' })))
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+    await userEvent.click(await screen.findByText('+ Nova revista'))
+    await userEvent.type(screen.getByLabelText('Título'), 'Nova')
+    const arquivo = new File(['x'], 'capa.png', { type: 'image/png' })
+    await userEvent.upload(screen.getByLabelText(/Capa \(imagem/), arquivo)
+    await userEvent.click(screen.getByRole('button', { name: 'Adicionar' }))
+
+    expect(await screen.findByRole('img', { name: 'Capa de Nova' })).toHaveAttribute('src', '/capas/x.png')
+    expect(fetchMock.mock.calls[1][0]).toBe('/api/magazines')
+    expect(fetchMock.mock.calls[2][0]).toBe('/api/magazines/9/cover')
+  })
+
+  it('recusa no navegador uma imagem acima de 5 MB, sem chamar a API', async () => {
+    session.set('t')
+    const fetchMock = vi.fn().mockReturnValueOnce(json([]))
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+    await userEvent.click(await screen.findByText('+ Nova revista'))
+    const grande = new File([new Uint8Array(5 * 1024 * 1024 + 1)], 'grande.png', { type: 'image/png' })
+    await userEvent.upload(screen.getByLabelText(/Capa \(imagem/), grande)
+    expect(await screen.findByRole('alert')).toHaveTextContent('5 MB')
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
 })
